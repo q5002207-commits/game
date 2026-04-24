@@ -3,138 +3,191 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>نظام مافيا أحمد المحترف</title>
+    <title>بوابة أحمد المحترف - النسخة المعدلة</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/chessboard-js/1.0.0/chessboard-1.0.0.min.css">
     <style>
-        /* التنسيق العام - أسود وأحمر (ستايل هاكرز) */
-        * { touch-action: manipulation; box-sizing: border-box; user-select: none; }
-        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #000; color: #0f0; margin: 0; padding: 15px; display: flex; flex-direction: column; align-items: center; }
-        .container { width: 100%; max-width: 450px; text-align: center; }
-        h1 { color: #da291c; text-shadow: 0 0 10px #da291c; margin-bottom: 20px; }
-        
-        /* المدخلات والأزرار */
-        input { width: 100%; padding: 15px; background: #111; border: 1px solid #0f0; color: #0f0; border-radius: 10px; text-align: center; font-size: 1.1em; margin-bottom: 10px; }
-        button { width: 100%; padding: 15px; background: #da291c; color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 1.1em; transition: 0.2s; }
-        button:active { transform: scale(0.95); }
-        .btn-start { background: #008000; margin-top: 10px; }
-
-        /* عرض الأسماء المضافة */
-        #preview { margin: 15px 0; color: #888; font-size: 0.9em; min-height: 20px; border-bottom: 1px solid #222; padding-bottom: 10px; }
-
-        /* منطقة اللعب والكروت */
-        .narrator-box { background: #0055ff; color: white; padding: 20px; border-radius: 12px; margin-bottom: 20px; font-weight: bold; border: 2px solid white; font-size: 1.2em; }
-        .mafia-card { background: #1a1a1a; padding: 30px; margin: 12px 0; border-radius: 12px; border: 1px solid #444; cursor: pointer; position: relative; transition: 0.4s; }
-        .role-text { display: none; color: #ff0000; font-size: 1.6em; font-weight: bold; text-shadow: 0 0 8px #000; }
-        
-        /* تأثيرات القفل والاختفاء */
-        .locked-screen { pointer-events: none; opacity: 0.3; }
-        .fade-out { opacity: 0; transform: scale(0.85); pointer-events: none; transition: 0.6s; }
+        * { touch-action: manipulation; user-select: none; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #000; color: #0f0; margin: 0; padding: 10px; display: flex; flex-direction: column; align-items: center; overflow-x: hidden; }
+        #main-menu { text-align: center; margin-top: 40px; width: 100%; max-width: 400px; }
+        .menu-btn { display: block; width: 100%; padding: 25px; margin: 15px 0; background: #111; border: 2px solid #da291c; color: white; border-radius: 15px; font-size: 1.4em; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        .menu-btn:hover { background: #da291c; box-shadow: 0 0 20px #da291c; }
+        .back-home { background: #333; color: #fff; padding: 8px 15px; border-radius: 5px; cursor: pointer; margin-bottom: 10px; border: none; font-size: 0.8em; }
+        .header { width: 100%; max-width: 400px; background: #da291c; padding: 12px; border-radius: 12px; text-align: center; color: white; margin-bottom: 10px; }
+        #board { width: 380px !important; max-width: 95vw !important; border: 4px solid #222; border-radius: 8px; }
+        input { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #0f0; background: #000; color: #0f0; margin-bottom: 8px; text-align: center; }
+        button { width: 100%; padding: 12px; background: #da291c; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        img[class^="piece"] { border-radius: 50% !important; border: 1px solid white !important; }
+        .mafia-card, .spy-card { background: #1a1a1a; padding: 20px; margin: 10px 0; border-radius: 10px; border: 1px solid #444; transition: 0.5s; cursor: pointer; text-align: center; }
+        .role-display { display: none; color: #ff0000; font-size: 1.2em; font-weight: bold; margin-top: 10px; }
+        .narrator-box { background: #0055ff; color: white; padding: 15px; border-radius: 10px; margin-bottom: 15px; font-weight: bold; border: 2px solid white; }
         .hidden { display: none; }
+        .fade-out { opacity: 0; transform: scale(0.9); pointer-events: none; }
+        .locked { pointer-events: none; opacity: 0.4; }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <h1>AHMED MAFIA PRO</h1>
+    <div id="main-menu">
+        <h1 style="color:#da291c;">AHMED PRO SYSTEM</h1>
+        <button class="menu-btn" onclick="showGame('chess')">♟️ ساحة الشطرنج</button>
+        <button class="menu-btn" onclick="showGame('mafia')">🕵️ موزع المافيا (قانون أحمد)</button>
+        <button class="menu-btn" onclick="showGame('spy')">🔍 لعبة الجاسوس </button>
+    </div>
 
-        <div id="setup-area">
-            <input type="text" id="playerName" placeholder="أدخل اسم اللاعب..." autocomplete="off">
-            <button onclick="addPlayer()">إضافة لاعب +</button>
-            <div id="preview">اللاعبين: لا يوجد</div>
-            <button class="btn-start" onclick="distributeRoles()">توزيع الأدوار والراوي</button>
-        </div>
-
-        <div id="play-area" class="hidden">
-            <div id="narrator-display"></div>
-            <p style="color: #666; font-size: 0.8em; margin-bottom: 15px;">اضغط على اسمك لرؤية دورك (يختفي بعد 3 ثواني)</p>
-            <div id="cards-container"></div>
-            <button style="background: #333; margin-top: 30px;" onclick="location.reload()">إعادة اللعبة</button>
+    <div id="chess-section" class="hidden">
+        <button class="back-home" onclick="location.reload()">🏠 القائمة الرئيسية</button>
+        <div class="header"><h3>🏆 شطرنج أحمد المحترف 🏆</h3><div id="my-id" style="font-size:0.7em;">جاري الاتصال...</div></div>
+        <div id="board"></div>
+        <div style="width:100%; max-width:400px; margin-top:15px;">
+            <input type="text" id="friendId" placeholder="ID الخصم">
+            <button onclick="alert('طلب التحدي قيد التطوير')">إرسال طلب تحدي</button>
         </div>
     </div>
 
-    <script>
-        let players = [];
-        let isLocked = false;
+    <div id="mafia-section" class="hidden">
+        <button class="back-home" onclick="location.reload()">🏠 القائمة الرئيسية</button>
+        <div class="header"><h3>🕵️‍♂️ نظام المافيا المطور</h3></div>
+        <div id="mafia-setup" style="width:100%; max-width:400px;">
+            <input type="text" id="mafiaPlayerName" placeholder="اسم اللاعب...">
+            <button onclick="addMafiaPlayer()">إضافة لاعب</button>
+            <div id="mafia-preview" style="margin:10px; color:#888;"></div>
+            <button style="background:green;" onclick="startMafiaDist()">توزيع الأدوار + الراوي</button>
+        </div>
+        <div id="mafia-board" class="hidden" style="width:100%; max-width:400px;">
+            <div id="narrator-name"></div>
+            <div id="mafia-cards-container"></div>
+        </div>
+    </div>
 
-        // إضافة لاعب للقائمة
-        function addPlayer() {
-            const input = document.getElementById('playerName');
-            const name = input.value.trim();
-            if (name) {
-                players.push(name);
-                document.getElementById('preview').innerText = "اللاعبين: " + players.join(" - ");
-                input.value = "";
-                input.focus();
-            }
+    <div id="spy-section" class="hidden">
+        <button class="back-home" onclick="location.reload()">🏠 القائمة الرئيسية</button>
+        <div class="header"><h3>🔍 لعبة الجاسوس</h3></div>
+        <div id="spy-setup" style="width:100%; max-width:400px;">
+            <input type="text" id="spyPlayerName" placeholder="اسم اللاعب...">
+            <button onclick="addSpyPlayer()">إضافة لاعب</button>
+            <div id="spy-preview" style="margin:10px; color:#888;"></div>
+            <button style="background:green;" onclick="startSpyDist()">توزيع الأماكن</button>
+        </div>
+        <div id="spy-board" class="hidden" style="width:100%; max-width:400px;">
+            <div id="spy-cards-container"></div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chessboard-js/1.0.0/chessboard-1.0.0.min.js"></script>
+    <script src="https://unpkg.com/peerjs@1.3.1/dist/peerjs.min.js"></script>
+
+    <script>
+        let isLocked = false;
+        let mPlayers = [];
+        let sPlayers = [];
+        
+        // قائمة الـ 50 كلمة للعبة الجاسوس
+        const spyPlaces = [
+            "مستشفى", "مدرسة", "غابة", "طائرة", "مطعم", "فندق", "سوق", "حديقة", "مطار", "محطة قطار", 
+            "سفينة", "مخيم", "قلعة", "مسرح", "سينما", "ملعب كورة", "مكتبة", "متحف", "شاطئ", "بنك", 
+            "مركز شرطة", "إطفائية", "جامعة", "مختبر", "فضاء", "تحت البحر", "منجم", "صحراء", "قطب متجمد", "مزرعة", 
+            "قصر", "سجن", "ورشة", "صيدلية", "عيادة أسنان", "نادي رياضي", "صالون حلاقة", "مطعم شاورما", "منسف", "عرس", 
+            "جنازة", "مصنع", "شركة", "قاعدة عسكرية", "برج إيفل", "الأهرامات", "مول", "سوبر ماركت", "محطة بنزين", "غرفة نوم"
+        ];
+
+        function showGame(type) {
+            $('#main-menu').hide();
+            if(type === 'chess') { $('#chess-section').removeClass('hidden'); initChess(); }
+            else if(type === 'mafia') { $('#mafia-section').removeClass('hidden'); }
+            else if(type === 'spy') { $('#spy-section').removeClass('hidden'); }
         }
 
-        // توزيع الأدوار بناءً على قوانين أحمد
-        function distributeRoles() {
-            if (players.length < 4) return alert("لازم على الأقل 4 لاعبين (3 لاعبين + 1 راوي)!");
+        // --- شطرنج أحمد ---
+        var board = null, game = new Chess(), peer = null;
+        var pics = {
+            wK: 'https://i.postimg.cc/m27HgYdg/king-black.jpg', wQ: 'https://i.postimg.cc/CxLfkvYW/813f791d-4209-474a-b3ae-32306e3d2632.jpg',
+            wN: 'https://i.postimg.cc/d31K4Kx9/download.jpg', wB: 'https://i.postimg.cc/jjn9q4WQ/download.jpg',
+            bP: 'https://i.postimg.cc/Nj9dgQFv/download.jpg', bK: 'https://i.postimg.cc/T19B8NZh/cbbe2978-b5df-45c8-ad43-05cfb6f57edb.jpg',
+            bQ: 'https://i.postimg.cc/HsbtBvqn/ca232a37-372a-45be-b758-6e90cd5f70a1.jpg', bN: 'https://i.postimg.cc/DwFRgXMy/5f98a3d6-1c49-4903-a9c0-8a1b8a2de568.jpg',
+            bB: 'https://i.postimg.cc/RVRx2dfm/download.jpg', wP: 'https://chessboardjs.com/img/chesspieces/wikipedia/wP.png'
+        };
 
-            // 1. اختيار الراوي وحذفه من التوزيع
-            const narratorIndex = Math.floor(Math.random() * players.length);
-            const narratorName = players[narratorIndex];
-            const activePlayers = players.filter((_, i) => i !== narratorIndex);
+        function initChess() {
+            let id = "Ahmed_" + Math.floor(1000 + Math.random() * 9000);
+            peer = new Peer(id);
+            peer.on('open', (i) => { 
+                $('#my-id').text("ID: " + i); 
+                board = Chessboard('board', {
+                    draggable: true, position: 'start', 
+                    pieceTheme: (p) => pics[p] || 'https://chessboardjs.com/img/chesspieces/wikipedia/' + p + '.png'
+                }); 
+            });
+        }
 
-            // 2. تحديد عدد المافيا (قانون أحمد المحترف)
+        // --- مافيا (قانون أحمد) ---
+        function addMafiaPlayer() {
+            let n = $('#mafiaPlayerName').val().trim();
+            if(n) { mPlayers.push(n); $('#mafia-preview').text("اللاعبين: " + mPlayers.join(" - ")); $('#mafiaPlayerName').val("").focus(); }
+        }
+
+        function startMafiaDist() {
+            if(mPlayers.length < 4) return alert("لازم 4 لاعبين على الأقل!");
+            let narratorIdx = Math.floor(Math.random() * mPlayers.length);
+            let narratorName = mPlayers[narratorIdx];
+            let actives = mPlayers.filter((_, i) => i !== narratorIdx);
             let roles = [];
-            const pCount = activePlayers.length;
-
-            if (pCount >= 10) {
-                roles.push("مافيا القتل 🔪", "مافيا التسكيت 🤫"); // 2 مافيا
-            } else {
-                roles.push("مافيا القتل 💀"); // 1 مافيا
-            }
-
+            if (actives.length >= 10) { roles.push("مافيا القتل 🔪", "مافيا التسكيت 🤫"); } 
+            else { roles.push("مافيا القتل 💀"); }
             roles.push("دكتور 💉");
-            while (roles.length < pCount) roles.push("مواطن 👨‍🌾");
-
-            // خلط الأدوار عشوائياً
+            while(roles.length < actives.length) roles.push("مواطن 👨‍🌾");
             roles.sort(() => Math.random() - 0.5);
 
-            // 3. عرض النتائج
-            document.getElementById('setup-area').classList.add('hidden');
-            const playArea = document.getElementById('play-area');
-            playArea.classList.remove('hidden');
-
-            document.getElementById('narrator-display').innerHTML = `
-                <div class="narrator-box">🎤 الراوي: ${narratorName}</div>
-            `;
-
-            const container = document.getElementById('cards-container');
-            container.innerHTML = "";
-
-            activePlayers.forEach((name, i) => {
-                const card = document.createElement('div');
-                card.className = 'mafia-card';
-                card.id = `card-${i}`;
-                card.innerHTML = `
-                    <b id="name-${i}">${name}</b>
-                    <div class="role-text" id="role-${i}">${roles[i]}</div>
-                `;
-
-                card.onclick = function() {
-                    if (isLocked) return;
-
-                    // قفل الغش: منع أي ضغطة ثانية
-                    isLocked = true;
-                    document.querySelectorAll('.mafia-card').forEach(c => c.classList.add('locked-screen'));
-                    card.classList.remove('locked-screen');
-
-                    document.getElementById(`name-${i}`).classList.add('hidden');
-                    document.getElementById(`role-${i}`).style.display = 'block';
-
-                    // إخفاء الكرت نهائياً بعد 3 ثواني
-                    setTimeout(() => {
-                        card.classList.add('fade-out');
-                        setTimeout(() => {
-                            card.style.visibility = 'hidden'; // حذف المساحة لكن الحفاظ على الترتيب
-                            isLocked = false;
-                            document.querySelectorAll('.mafia-card').forEach(c => c.classList.remove('locked-screen'));
-                        }, 600);
+            $('#mafia-setup').hide();
+            $('#mafia-board').removeClass('hidden');
+            $('#narrator-name').html(`<div class="narrator-box">🎤 الراوي: ${narratorName}</div>`);
+            
+            let container = $('#mafia-cards-container');
+            container.empty();
+            actives.forEach((p, i) => {
+                let card = $(`<div class="mafia-card" id="mc-${i}"><strong id="mpn-${i}">${p}</strong><div class="role-display" id="mrl-${i}">${roles[i]}</div></div>`);
+                card.click(function() {
+                    if(isLocked) return;
+                    isLocked = true; $('.mafia-card').addClass('locked'); $(this).removeClass('locked');
+                    $(`#mpn-${i}`).hide(); $(`#mrl-${i}`).fadeIn();
+                    setTimeout(() => { 
+                        $(`#mc-${i}`).addClass('fade-out'); 
+                        setTimeout(() => { $(`#mc-${i}`).css('visibility', 'hidden'); isLocked = false; $('.mafia-card').removeClass('locked'); }, 500); 
                     }, 3000);
-                };
-                container.appendChild(card);
+                });
+                container.append(card);
+            });
+        }
+
+        // --- الجاسوس (إضافة أحمد) ---
+        function addSpyPlayer() {
+            let n = $('#spyPlayerName').val().trim();
+            if(n) { sPlayers.push(n); $('#spy-preview').text("اللاعبين: " + sPlayers.join(" - ")); $('#spyPlayerName').val("").focus(); }
+        }
+
+        function startSpyDist() {
+            if(sPlayers.length < 3) return alert("لازم 3 لاعبين على الأقل!");
+            let place = spyPlaces[Math.floor(Math.random() * spyPlaces.length)];
+            let spyIdx = Math.floor(Math.random() * sPlayers.length);
+            let roles = sPlayers.map((_, i) => (i === spyIdx ? "أنت الجاسوس 🕵️" : place));
+
+            $('#spy-setup').hide();
+            $('#spy-board').removeClass('hidden');
+            let container = $('#spy-cards-container');
+            container.empty();
+            sPlayers.forEach((p, i) => {
+                let card = $(`<div class="spy-card" id="sc-${i}"><strong id="spn-${i}">${p}</strong><div class="role-display" id="srl-${i}" style="color:#00ff00;">${roles[i]}</div></div>`);
+                card.click(function() {
+                    if(isLocked) return;
+                    isLocked = true; $('.spy-card').addClass('locked'); $(this).removeClass('locked');
+                    $(`#spn-${i}`).hide(); $(`#srl-${i}`).fadeIn();
+                    setTimeout(() => { 
+                        $(`#sc-${i}`).addClass('fade-out'); 
+                        setTimeout(() => { $(`#sc-${i}`).css('visibility', 'hidden'); isLocked = false; $('.spy-card').removeClass('locked'); }, 500); 
+                    }, 3000);
+                });
+                container.append(card);
             });
         }
     </script>
